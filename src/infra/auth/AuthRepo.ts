@@ -1,4 +1,6 @@
+import { error } from 'node:console'
 import { singleton } from 'tsyringe'
+// TODO: 使用bcrypt加密密码
 // import bcrypt from 'bcrypt'
 import type { UserRole } from '@prisma/client'
 import type { User } from '../../domain/user/User.js'
@@ -15,23 +17,29 @@ export class AuthRepo implements IAuthRepo {
    * @returns 用户信息
    */
   login: (name: string, password: string) => Promise<User & { accessToken: string, refreshToken: string } | null> = async (name, password) => {
-    const user = await prisma.user.findUnique({
-      where: { name },
-    })
-    if (!user)
+    try {
+      const user = await prisma.user.findUnique({
+        where: { name },
+      })
+      if (!user)
+        return null
+
+      // 使用安全的密码比较方法
+      // const isPasswordValid = await bcrypt.compare(password, user.password)
+      const isPasswordValid = password === user.password
+      if (!isPasswordValid)
+        return null
+
+      // 生成新的 token
+      const accessToken = JwtUtil.generateToken({ id: user.id })
+      const refreshToken = JwtUtil.generateToken({ id: user.id }, '7d')
+
+      return { ...user, accessToken, refreshToken }
+    }
+    catch (e) {
+      console.error('登录失败:', error)
       return null
-
-    // 使用安全的密码比较方法
-    // const isPasswordValid = await bcrypt.compare(password, user.password)
-    const isPasswordValid = password === user.password
-    if (!isPasswordValid)
-      return null
-
-    // 生成新的 token
-    const accessToken = JwtUtil.generateToken({ id: user.id })
-    const refreshToken = JwtUtil.generateToken({ id: user.id }, '7d')
-
-    return { ...user, accessToken, refreshToken }
+    }
   }
 
   /**
@@ -57,7 +65,7 @@ export class AuthRepo implements IAuthRepo {
       return { ...user, accessToken, refreshToken: newRefreshToken }
     }
     catch (e) {
-      console.error(e)
+      console.error('刷新令牌失败:', error)
       return null
     }
   }
@@ -74,7 +82,7 @@ export class AuthRepo implements IAuthRepo {
       return true
     }
     catch (e) {
-      console.error(e)
+      console.error('登出失败:', error)
       return false
     }
   }
@@ -90,7 +98,7 @@ export class AuthRepo implements IAuthRepo {
         return null
     }
     catch (e) {
-      console.error(e)
+      console.error('注册失败:', error)
       return null
     }
 
@@ -109,7 +117,7 @@ export class AuthRepo implements IAuthRepo {
       return newUser
     }
     catch (e) {
-      console.error(e)
+      console.error('注册失败:', error)
       return null
     }
   }
@@ -139,7 +147,7 @@ export class AuthRepo implements IAuthRepo {
       return true
     }
     catch (e) {
-      console.error(e)
+      console.error('添加到黑名单失败:', error)
       return false
     }
   }

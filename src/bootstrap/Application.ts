@@ -4,6 +4,8 @@ import type Application from 'koa'
 
 import { UserController } from '../apis/UserController.js'
 import { AuthController } from '../apis/AuthController.js'
+import { ArticleController } from '../apis/ArticleController.js'
+import { ReminderController } from '../apis/ReminderController.js'
 import { ErrorHandlerMiddleware } from './ErrorHandler.js'
 
 export const createApp = async (): Promise<Application> => {
@@ -20,7 +22,7 @@ export const createApp = async (): Promise<Application> => {
       }
       return false
     },
-    controllers: [UserController, AuthController],
+    controllers: [UserController, AuthController, ArticleController, ReminderController],
     middlewares: [ErrorHandlerMiddleware],
   })
 }

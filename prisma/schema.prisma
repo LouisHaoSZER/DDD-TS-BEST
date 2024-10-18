@@ -45,9 +45,9 @@ model Reminder {
   id        Int      @id @default(autoincrement())
   title     String // 提醒标题
   content   String // 提醒内容
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int // 用户ID,外键关联User表
-  dueDate   DateTime // 提醒到期日期
+  creator   User     @relation(fields: [creatorId], references: [id])
+  creatorId Int // 创建者ID,外键关联User表
+  dueDate   String // 提醒到期日期
   createdAt DateTime @default(now()) // 创建时间
   updatedAt DateTime @updatedAt // 更新时间
 }

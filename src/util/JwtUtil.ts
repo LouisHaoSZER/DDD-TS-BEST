@@ -1,11 +1,10 @@
 import jwt from 'jsonwebtoken'
-import { generateSecretKey } from './generayeSecreKey.js'
 
 /**
  * JWT工具类
  */
 export class JwtUtil {
-  private static secretKey = 'PA9PN0EKyd5JJenJoK6WUtfYzlp/zqLj+TUNBiwebt4='
+  private static secretKey = 'e/XgvBaAdrGxwDv1VHRIhlUjkNG1R3yfgBuGoKsGTgU='
 
   /**
    * @description 生成token
