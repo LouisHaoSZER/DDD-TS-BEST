@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 用户角色枚举
+enum UserRole {
+  USER // 普通用户
+  ADMIN // 管理员
+  SYS // 系统用户
+}
+
+// 用户模型
+model User {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique // 用户名,唯一
+  password  String // 密码,应该在存储前进行加密
+  role      UserRole // 用户角色
+  articles  Article[] // 用户发布的文章
+  reminders Reminder[] // 用户的提醒
+  createdAt DateTime   @default(now()) // 创建时间
+  updatedAt DateTime   @updatedAt // 更新时间
+}
+
+// 科普文章模型
+model Article {
+  id        Int      @id @default(autoincrement())
+  title     String // 文章标题
+  content   String // 文章内容
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  Int // 作者ID,外键关联User表
+  createdAt DateTime @default(now()) // 创建时间
+  updatedAt DateTime @updatedAt // 更新时间
+}
+
+// 每日提醒模型
+model Reminder {
+  id        Int      @id @default(autoincrement())
+  title     String // 提醒标题
+  content   String // 提醒内容
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int // 用户ID,外键关联User表
+  dueDate   DateTime // 提醒到期日期
+  createdAt DateTime @default(now()) // 创建时间
+  updatedAt DateTime @updatedAt // 更新时间
+}
+
+// 令牌黑名单
+model TokenBlacklist {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique // 令牌
+  createdAt DateTime @default(now()) // 创建时间
+}
